@@ -1,16 +1,16 @@
 import pygame
-import random
-from entities.bird import Bird
+from modules.neat_adapter import NeatAdapter
 from entities.floor import Floor
 from services.pipe_manager import PipeManager
 from services.game_manager import GameManager
 
 
 class FlappyBird:
-    def __init__(self, width: int, height: int, gameSpeed: int) -> None:
+    def __init__(self, width: int, height: int, gameSpeed: int, neat: NeatAdapter) -> None:
         self.width = width
         self.height = height
         self.gameSpeed = gameSpeed
+        self.neat = neat
 
     def start(self) -> None:
         pygame.init()
@@ -21,57 +21,54 @@ class FlappyBird:
         self._setBg()
         self._setFont()
 
-        self.birdSpeed = 10
-        self.gameManager = GameManager(self.screen, self.birdSpeed)
-        self.floor = Floor(screen=self.screen,
-                           speed=self.gameSpeed, gameManager=self.gameManager)
-        self.pipeManager = PipeManager(
-            screen=self.screen, pipeSpeed=self.gameSpeed, pipeSpacing=225, pipeRange=150, gameManager=self.gameManager)
-
-        self.running = True
-        self._run()
+        self.birdSpeed = 11
 
     def _setBg(self) -> None:
-        image = pygame.image.load('assets/background-day.png')
+        image = pygame.image.load('src/assets/background-day.png')
         self.backgroundImage = pygame.transform.scale(
             image, (self.width, self.height)).convert_alpha()
 
     def _setFont(self) -> None:
-        self.font = pygame.font.Font('assets/fonts/flappy-bird.ttf', 80)
+        self.font = pygame.font.Font('src/assets/fonts/flappy-bird.ttf', 80)
+        self.birdFont = pygame.font.Font(
+            'src/assets/fonts/flappy-bird.ttf', 30)
 
-    def _run(self) -> None:
-        self.gameManager.generateBirds(1)
+    def run(self, genomes, config) -> None:
+        pipeSpacing = 225
+        self.gameManager = GameManager(
+            self.screen, self.birdSpeed, self.neat, self.birdFont, pipeSpacing)
+        self.floor = Floor(screen=self.screen,
+                           speed=self.gameSpeed, gameManager=self.gameManager)
+        self.pipeManager = PipeManager(
+            screen=self.screen, pipeSpeed=self.gameSpeed, pipeSpacing=pipeSpacing, pipeRange=165, gameManager=self.gameManager)
 
+        self.gameManager.generateBirds(genomes)
+
+        self.running = True
         while self.running:
             self._drawScreen()
-            self.clock.tick(60)
 
             birds = self.gameManager.getBirds()
-            print(self.clock.get_fps())
             for bird in birds:
-                # randomNumber = random.randrange(-20, 30)
-                # if (randomNumber > 20):
-                #     bird.jump()
-                for event in pygame.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_SPACE:
-                            bird.jump()
                 bird.show()
-                self.pipeManager.checkBirdCollision(bird)
-                self.floor.checkBirdCollision(bird)
 
-                self._drawFont(
-                    f'{self.gameManager.getBirdScore(bird)}')
+                self.pipeManager.checkBirdCollision(bird)
+
+                self.gameManager.calculateJump(
+                    bird, self.pipeManager.getFirstPipeColumn())
+
+                self.floor.checkBirdCollision(bird)
 
             self.pipeManager.manage()
             self.floor.show()
 
             if (self.gameManager.isGameOver()):
                 self._drawFont('Game Over')
+                self.running = False
+                break
 
+            self.clock.tick(60)
             pygame.display.flip()
-
-        pygame.quit()
 
     def _drawScreen(self) -> None:
         self.screen.blit(self.backgroundImage, self.backgroundImage.get_rect())
@@ -94,8 +91,3 @@ class FlappyBird:
 
         self.screen.blit(fontImageShadow, fontShadowRect)
         self.screen.blit(fontImage, fontRect)
-
-
-if __name__ == '__main__':
-    game = FlappyBird(400, 800, 5)
-    game.start()

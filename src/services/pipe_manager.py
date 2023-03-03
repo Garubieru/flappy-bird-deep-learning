@@ -27,15 +27,6 @@ class PipeManager:
         for pipe in self.pipes:
             pipe.move()
 
-    def checkBirdCollision(self, bird):
-        for pipe in self.pipes:
-            pipe.show()
-            if pipe.isBirdInValidPositionScore(bird):
-                self.gameManager.increaseScore(bird)
-
-            if pipe.isBirdColliding(bird):
-                self.gameManager.lose(bird)
-
     def _generatePipe(self) -> None:
         if not self._isValidToGenerate():
             return
@@ -44,7 +35,7 @@ class PipeManager:
 
     def _isValidToGenerate(self) -> bool:
         validPositionToGenerate = self.screen.get_width() - self.pipeSpacing
-        return self.pipes[0].pipeRect.x <= validPositionToGenerate
+        return self.pipes[0].getXPos() <= validPositionToGenerate
 
     def _removePipe(self) -> None:
         pipesLength = len(self.pipes)
@@ -53,3 +44,16 @@ class PipeManager:
 
         if (lastPipe.isOffScreen()):
             self.pipes.pop(lastPipeIndex)
+
+    def checkBirdCollision(self, bird: Bird) -> None:
+        for pipe in self.pipes:
+            pipe.show()
+            if pipe.isBirdInValidPositionScore(bird):
+                self.gameManager.increaseScore(bird)
+
+            if pipe.isBirdColliding(bird):
+                self.gameManager.lose(bird)
+                print('BATIII', bird.id)
+
+    def getFirstPipeColumn(self) -> PipeColumn:
+        return self.pipes[0]

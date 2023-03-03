@@ -13,6 +13,7 @@ class PipeColumn:
         self.speed = speed
         self.range = range
         self.alreadyScored = False
+        self.birdsPassedIds: list[int] = []
         self._loadImage()
         self._generatePipePosition()
 
@@ -37,7 +38,7 @@ class PipeColumn:
         self.pipeRect.x = pipeInitialX
         self.invertedPipeRect.x = pipeInitialX
 
-        floorPipeY = random.randint(240, 580)
+        floorPipeY = random.randint(300, 500)
         self.pipeRect.y = floorPipeY
         self.invertedPipeRect.y = floorPipeY - \
             (self.screen.get_height() + self.range)
@@ -46,7 +47,7 @@ class PipeColumn:
 
     def show(self) -> None:
         self.validScorePosition = (
-            math.trunc(self.pipeRect.x + (self.pipeRect.width / 2)), self.pipeValidScoreYRange)
+            math.trunc(self.pipeRect.x + self.pipeRect.width), self.pipeValidScoreYRange)
         self.screen.blit(self.pipe, self.pipeRect)
         self.screen.blit(self.invertedPipe, self.invertedPipeRect)
 
@@ -58,16 +59,15 @@ class PipeColumn:
         return self.getXPos() <= -self.pipeRect.width
 
     def isBirdInValidPositionScore(self, bird: Bird) -> bool:
-        if (self.alreadyScored):
+        isPipePassed = bird.id in self.birdsPassedIds
+        if (isPipePassed):
             return False
-
         validScoreMinY = self.validScorePosition[1][0]
         validScoreMaxY = self.validScorePosition[1][1]
         isValid = bird.x >= self.validScorePosition[0] and (
             bird.y >= validScoreMinY and bird.y <= validScoreMaxY)
-
-        self.alreadyScored = isValid
-
+        if (isValid):
+            self.birdsPassedIds.append(bird.id)
         return isValid
 
     def isBirdColliding(self, bird: Bird) -> bool:

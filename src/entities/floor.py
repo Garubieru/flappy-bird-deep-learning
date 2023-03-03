@@ -7,7 +7,7 @@ from services.game_manager import GameManager
 
 class Floor:
     def __init__(self, screen: pygame.Surface, speed: int, gameManager: GameManager) -> None:
-        image = pygame.image.load('assets/base.png')
+        image = pygame.image.load('src/assets/base.png')
         self.id = uuid.uuid4()
         self.screen = screen
         self.speed = speed
