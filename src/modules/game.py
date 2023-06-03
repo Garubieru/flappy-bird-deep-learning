@@ -11,6 +11,7 @@ class FlappyBird:
         self.height = height
         self.gameSpeed = gameSpeed
         self.neat = neat
+        self.generation = 0
 
     def start(self) -> None:
         pygame.init()
@@ -61,10 +62,12 @@ class FlappyBird:
 
             self.pipeManager.manage()
             self.floor.show()
+            self._drawFont(f'{self.generation}')
 
             if (self.gameManager.isGameOver()):
                 self._drawFont('Game Over')
                 self.running = False
+                self.generation += 1
                 break
 
             self.clock.tick(60)

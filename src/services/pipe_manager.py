@@ -53,7 +53,6 @@ class PipeManager:
 
             if pipe.isBirdColliding(bird):
                 self.gameManager.lose(bird)
-                print('BATIII', bird.id)
 
     def getFirstPipeColumn(self) -> PipeColumn:
         return self.pipes[0]

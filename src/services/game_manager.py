@@ -19,7 +19,7 @@ class GameManager:
     def generateBirds(self, genomes: list[Any]) -> None:
         self.birdsQuantity = len(genomes)
         for index, genome in genomes:
-            bird = Bird(index,
+            bird = Bird(id=index,
                         screen=self.screen,
                         speed=self.birdSpeed,
                         initialPosition=self.initialBirdPosition,
