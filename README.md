@@ -1,4 +1,5 @@
 # Pygame Flappy Bird AI
 
-- TODO:
-  - Implementar a lib NEAT de redes neurais: https://neat-python.readthedocs.io/en/latest/
+- Como rodar:
+  - Dentro do repositório rode o comando: ```python setup.py```
+  - Após o setup, para inicialização, rode: ```python start.py```
